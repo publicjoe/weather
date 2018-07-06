@@ -1,0 +1,163 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Simple Weather API
+  description: API for getting the current weather information
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /weather:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: weather
+    get:
+      description: Returns the current weather for the requested location using the requested unit
+      # used as the method name of the controller
+      operationId: getWeather
+      parameters:
+        - name: location
+          in: query
+          description: The MSN Weather location search string
+          required: true
+          type: string
+        - name: unit
+          in: query
+          description: The unit, either 'C' or 'F'
+          required: true
+          type: string
+          enum: [C, F]
+          default: F
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/Weather"
+        # responses may fall through to errors
+        default:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  Weather: 
+    properties: 
+      location: 
+        $ref: '#/definitions/Location'
+      current: 
+        $ref: '#/definitions/CurrentWeather'
+      forecast: 
+        type: array
+        items: 
+          $ref: '#/definitions/Forecast'
+    required: [current, location, forecast]
+  CurrentWeather: 
+    properties: 
+      temperature: 
+        type: string
+      skycode: 
+        type: string
+      skytext: 
+        type: string
+      date: 
+        type: string
+      observationtime: 
+        type: string
+      observationpoint: 
+        type: string
+      feelslike: 
+        type: string
+      humidity: 
+        type: string
+      winddisplay: 
+        type: string
+      day: 
+        type: string
+      shortday: 
+        type: string
+      windspeed: 
+        type: string
+      imageUrl: 
+        type: string
+    required: 
+      - temperature
+      - skycode
+      - skytext
+      - date
+      - observationtime
+      - observationpoint
+      - feelslike
+      - humidity
+      - winddisplay
+      - day
+      - shortday
+      - windspeed
+      - imageUrl
+  Forecast: 
+    properties: 
+      low: 
+        type: string
+      high: 
+        type: string
+      skycodeday: 
+        type: string
+      skytextday: 
+        type: string
+      date: 
+        type: string
+      day: 
+        type: string
+      shortday: 
+        type: string
+      precip: 
+        type: string
+    required: 
+      - low
+      - high
+      - skycodeday
+      - skytextday
+      - date
+      - day
+      - shortday
+      - precip
+  Location: 
+    type: object
+    properties: 
+      name: 
+        type: string
+      zipcode: 
+        type: string
+      lat: 
+        type: string
+      long: 
+        type: string
+      timezone: 
+        type: string
+      alert: 
+        type: string
+      degreetype: 
+        type: string
+        enum: [C, F]
+      imagerelativeurl: 
+        type: string
+    required: [name, lat, long, timezone, degreetype]
